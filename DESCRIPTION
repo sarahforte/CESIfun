@@ -1,0 +1,32 @@
+Package: CESIfun
+Type: Package
+Title: Calculating flood and drought metrics, executing trend tests using specific parameters
+Version: 0.1.0
+Author: Matthew Noteboom, Jennifer Pellerin, Zhou Yang
+Maintainer: The package maintainer <Jennifer.Pellerin@ec.gc.ca>
+Description: This package contains functions extracted from CESI project and can be used
+    for calculating flood and drought metrics, trend analysis, threshold and bday calculation.
+    COntents:
+    mk_test from 02Figures_mk_test.R;
+    hurdle_test from 02Figures_hurdle.R;
+    negbin from 02Figures_negbin.R;
+    bday_calculation from 01_Variables_bday_calculation.R;
+    Threshold_Build from 01_Variables_Threshold_building.R;
+    percentile.ranked from 02Figure2_CreatingSummaryTable.R;
+    Get_ann_mean_flow from 01_Variables_Flow Calendar Function.R;
+    Get_flood_metrics from 01_Variables_Flow Calendar Function.R
+    Get_Drought_metrics from 01_Variables_Flow Calendar Function.R;
+Imports:
+    dplyr,
+    zyp,
+    MASS,
+    countreg,
+    tidyr,
+    zoo,
+    evir,
+    purrr,
+    lfstat
+license: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1

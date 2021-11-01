@@ -1,0 +1,13 @@
+Brief procedures on using the package:
+1. Open main.R using Rproj;
+2. Under the 'build' category click "Install and Restart";
+3. The package will be installed and ready to go. To check what the function does,
+   use ? function.
+
+About creating a package:
+1. Rtools will likely be needed in order to use the package "roxygen2".
+2. To build a package, start a new project, look for 'package' in 'new directory'.
+   Insert function as needed and add in different sections(such as description, return)
+   by clicking the 'Insert Roxygen Skeleton' under 'code' bar. Edit the description as needed
+   by modifying description.Rmd file. 
+3. When finished, go for 'Install and Restart' and the package will be loaded successfully.
