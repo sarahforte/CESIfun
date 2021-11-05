@@ -254,7 +254,7 @@ bday_calculation <- function(station, year="all"){
 #' as thresholds (hi & low) based on streamflow during a reference period, between
 #' year_from and year_to, for a list of stations. Only streamflow during the ice
 #' free period of the reference period, as identified with the bday_calculation
-#' function, is used in the calculation.
+#' function, is used in the calculation of the lower threshold.
 #'
 #'
 #' @param stations a vector of characters indicating the list of stations we want
@@ -462,7 +462,6 @@ Get_flood_metrics <- function(station, year='all'){
     valid_year=year
   }
   station_row = Threshold_Build(station)
-  bday = bday_calculation(station, valid_year)
   max_flow = c()
   pot_days = c()
   pot_events = c()
@@ -473,12 +472,8 @@ Get_flood_metrics <- function(station, year='all'){
   R <- 5 + log(stn_area/(1.609^2))%>%round(1)
   for (yr in valid_year){
     flow.dates = flow.daily %>% filter(Year == yr)
-#    bd=bday %>% filter(Year==yr)
-#    flow.Bdates = flow.dates %>% filter(Date>bd$LastBday) %>% filter(Date<bd$FirstBday)
-# do not calculate values for years with less than 150 days of data or no data
-# between B days
+# do not calculate values for years with less than 150 days
     if (any((nrow(flow.dates %>% filter(!is.na(Value)))<150),is_empty(flow.dates$Date))){
-#    if (any((nrow(flow.dates %>% filter(!is.na(Value)))<150),is_empty(flow.Bdates$Date))){
       pot_days = c(pot_days, NA)
       pot_events =c(pot_events, NA)
       pot_threshold = c(pot_threshold, NA)
@@ -486,7 +481,6 @@ Get_flood_metrics <- function(station, year='all'){
       max_flow <- c(max_flow,NA)
     }else{
       max.flow <- flow.dates %>% arrange(desc(Value)) %>% slice(1)
-#      max.flow <- flow.Bdates %>% arrange(desc(Value)) %>% slice(1)
       max.flow <- round(max.flow[["Value"]], digits = 2)
       max_flow <- c(max_flow,max.flow)
       if (is.na(station_row$Q_Upper)){
@@ -510,7 +504,6 @@ Get_flood_metrics <- function(station, year='all'){
                              threshold >= 0 ~ 1)
           pot2 <- possibly(evir::pot, otherwise = NA)
           pot <- pot2(flow.dates$Value[!is.na(flow.dates$Value)]/factor, threshold/factor)
-#          pot <- pot2(flow.Bdates$Value[!is.na(flow.Bdates$Value)]/factor, threshold/factor)
 
           if (!is.list(pot)) {
             pot_days = c(pot_days, NA)
@@ -574,7 +567,6 @@ Get_flood_metrics <- function(station, year='all'){
             if (length(seq_blocks)>1){
               for (j in 1:(length(seq_blocks)-1)){
                 range_flow <- flow.dates %>% filter(Date>=as.Date(max_peak$central_dates[j], origin=paste0(yr, "-01-01")),
-#                range_flow <- flow.Bdates %>% filter(Date>=as.Date(max_peak$central_dates[j], origin=paste0(yr, "-01-01")),
                                                      Date<=as.Date(max_peak$central_dates[j+1], origin=paste0(yr, "-01-01")))
                 if (all(min(range_flow$Value, na.rm=TRUE)<Xmin_vec[j],
                         ((max_peak$central_dates[j+1] - max_peak$central_dates[j])>R))){
