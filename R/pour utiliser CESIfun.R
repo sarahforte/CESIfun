@@ -12,7 +12,7 @@ library(tibble)    # to work with tables
 library(zyp)       # for function in Mann-Kendall test
 library(MASS)      # for function in Negative Binomial & hurdle tests
 library(countreg)  # for hurdle test
-source('mainS.R')
+source('main.R')
 
 #-------------------------------------------------------------------------------
 # set up database
@@ -32,8 +32,8 @@ yrs.of.int <- c(2001:2019)
 # calculate annual mean flow
 annual_mean_flow <- list()
 for (l in 1:length(stations$STATION_NUMBER)){
-ann_mean_flow <- Get_ann_mean_flow(stations$STATION_NUMBER[l])
-annual_mean_flow[[l]] <- ann_mean_flow
+  ann_mean_flow <- Get_ann_mean_flow(stations$STATION_NUMBER[l])
+  annual_mean_flow[[l]] <- ann_mean_flow
 }
 annual_mean_flow <- bind_rows(annual_mean_flow)
 
@@ -108,7 +108,7 @@ write.csv(snap.all, paste0("./Output/Summary.AnnMeanYield.csv"), row.names = FAL
 #     - maximum duration of events
 
 flood_metrics <- list()
-for (i in 977:length(stations$STATION_NUMBER)) {
+for (i in 1:length(stations$STATION_NUMBER)) {
 f_m <- Get_flood_metrics(stations$STATION_NUMBER[i], year="all")
 flood_metrics[[i]] <- f_m
 }
