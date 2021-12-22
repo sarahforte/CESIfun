@@ -141,7 +141,8 @@ write.csv(metrics,"./Output/Summary.FandDmetrics.csv", row.names = FALSE)
 # calculate trends
 
 # define metrics to calculate trends
-var_list <- c("ann_mean_yield", "pot_days")
+var_list <- "X1_day_max"#c("pot_events", "pot_max_dur")
+#var_list <- c("ann_mean_yield", "pot_days")
 result_list <- paste0(var_list, "_trend")
 
 # set up output files
@@ -151,7 +152,7 @@ for (j in 1:length(var_list)){
   print(var.t)
   output_name = paste0("./Output/Summary_", var.t, "_trends.csv")
   snap <- list()
-  for (i in 1:length(stations$STATION_NUMBER)){
+  for (i in 581:length(stations$STATION_NUMBER)){
     stn.id <- stations$STATION_NUMBER[i]
     print(stn.id)
 
@@ -230,3 +231,60 @@ for (j in 1:length(var_list)){
   }
   write.csv(snap.all, output_name, row.names = FALSE)
 }
+
+#-------------------------------------------------------------------------------
+# create shape files for output
+
+# function to set up a data frame with station, coords, selected metric and output to
+# a shapefile for GIS.
+
+# Inputs:
+# metric.data - data frame of data to be output to shp; must include 'STATION_NUMBER'
+# metric - string of metric to be output for file naming
+# path.shp - relative path from working dir to shapefile location
+
+summary.to.shp <- function(metric.data, metric, path.shp){
+
+  library(sp)
+  library(rgdal)
+  library(tidyhydat)
+
+  var2 <- metric
+
+  print(var2)
+
+  station.list <- as.character(metric.data$STATION_NUMBER)
+
+  CanadaBound <- readOGR(dsn = "../../Dependencies", "CanadaBound")
+  crs <- CanadaBound@proj4string
+  crs_wgs  <- CRS( "+init=epsg:4326")
+  stn_data <- as.data.frame(hy_stations() %>% dplyr::select(STATION_NUMBER, LATITUDE, LONGITUDE))
+  stn_data <- stn_data[stn_data$STATION_NUMBER %in% station.list,]
+  stn_xy   <- stn_data[,c("LONGITUDE", "LATITUDE")]
+  version<- substring(hy_version()$Date,0,7)
+
+  metricdata <- left_join(stn_data,metric.data,by="STATION_NUMBER")
+
+  # print(paste("stn_xy:",nrow(stn_xy), "metricdata:", nrow(metricdata)))
+
+  metricplot <- SpatialPointsDataFrame(coords = stn_xy, data = metricdata,
+                                       proj4string = crs_wgs)
+  metricplot <- spTransform(metricplot, CRSobj = crs)
+
+  outstring <- paste0(path.shp, "/RHBN_U_pts_", metric, "_Hydat_", version, ".shp")
+
+  if (!file.exists(outstring)){
+    rgdal::writeOGR(metricplot, outstring,
+                    layer=basename(outstring),
+                    driver="ESRI Shapefile")
+  }
+}
+
+var_list <- c("dr_days")
+var_list <- c("ann_mean_yield", "pot_days","pot_events", "pot_max_dur",
+            "X1_day_max", "dr_days","dr_events", "dr_max_dur", "X7_day_min")
+for (v in 1:length(var_list)) {
+  param<-read.csv(paste0("./Output/Summary_", var_list[v], "_trends.csv"))
+  summary.to.shp(param, paste0(var_list[v],"_trends"), "./Output/Shapefiles")
+}
+
